@@ -48,6 +48,6 @@ document.addEventListener("DOMContentLoaded", function () {
                 }
             })
             .catch(err => console.error("Failed to fetch moisture data:", err));
-    }, 2000);
+    }, 500);
 });
 
