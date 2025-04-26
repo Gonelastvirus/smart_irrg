@@ -35,6 +35,14 @@
             justify-content: space-between;
             align-items: center;
             margin-bottom: 1.5rem;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
         }
 
         /* User Profile Section */
@@ -52,11 +60,12 @@
             padding: 8px 12px;
             border-radius: 25px;
             box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-            transition: background 0.3s ease;
+            transition: all 0.3s ease;
         }
 
         .user-info:hover {
             background: #e8f0fe;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
         }
 
         .user-avatar {
@@ -95,12 +104,16 @@
 
         .dropdown-content.show {
             display: block;
+            animation: fadeIn 0.3s;
         }
 
-        .logout-btn {
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .dropdown-item {
             padding: 0.6rem 1rem;
-            background-color: #f44336;
-            color: white;
             border-radius: 20px;
             text-decoration: none;
             font-size: 0.95rem;
@@ -108,6 +121,20 @@
             border: none;
             cursor: pointer;
             transition: background-color 0.3s ease;
+            display: block;
+            text-align: left;
+            background: none;
+            color: #2c3e50;
+            margin-bottom: 0.25rem;
+        }
+
+        .dropdown-item:hover {
+            background-color: #f8f9fa;
+        }
+
+        .logout-btn {
+            background-color: #f44336;
+            color: white;
         }
 
         .logout-btn:hover {
@@ -145,19 +172,19 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 0.3rem;
+            gap: 0.5rem;
         }
 
         /* Large Card for Line Graph */
         .large-card {
             flex: 1 1 100%;
-            max-width: 840px; /* Matches 2 cards (400px each) + gap (1.5rem = 24px at 16px/rem) */
-            margin-top: 0; /* Remove extra margin to align directly below */
+            max-width: 840px;
+            margin-top: 0;
         }
 
         .line-graph {
             position: relative;
-            height: 250px; /* Increased height for better graph visibility */
+            height: 250px;
         }
 
         /* Toggle Switch */
@@ -220,28 +247,67 @@
             color: #555;
         }
 
-        /* View History Button */
+        /* Buttons */
         .btn {
             display: inline-flex;
             align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
             padding: 0.6rem 1.2rem;
             background-color: #007bff;
             color: white;
             text-decoration: none;
             border-radius: 20px;
             font-size: 0.95rem;
-            transition: background-color 0.3s ease, transform 0.3s ease;
+            transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
+            white-space: nowrap;
         }
 
         .btn:hover {
             background-color: #0056b3;
             transform: scale(1.05);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        .btn-secondary {
+            background-color: #6c757d;
+        }
+
+        .btn-secondary:hover {
+            background-color: #5a6268;
+        }
+
+        .btn-success {
+            background-color: #28a745;
+        }
+
+        .btn-success:hover {
+            background-color: #218838;
+        }
+
+        /* Action Buttons Container */
+        .action-buttons {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+            justify-content: center;
         }
 
         /* Responsive Design */
         @media (max-width: 900px) {
             .large-card {
-                max-width: 100%; /* Full width on smaller screens */
+                max-width: 100%;
+            }
+            
+            .header {
+                justify-content: center;
+            }
+            
+            .header-actions {
+                width: 100%;
+                justify-content: center;
             }
         }
 
@@ -251,12 +317,25 @@
                 gap: 1rem;
             }
 
-            .user-profile {
+            .header-actions {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .action-buttons {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .btn {
+                width: 100%;
                 justify-content: center;
             }
 
             .user-info {
                 padding: 6px 10px;
+                width: 100%;
+                justify-content: center;
             }
 
             .user-avatar {
@@ -271,6 +350,9 @@
             .dropdown-content {
                 top: 50px;
                 min-width: 140px;
+                right: auto;
+                left: 50%;
+                transform: translateX(-50%);
             }
 
             .btn {
@@ -279,7 +361,7 @@
             }
 
             .line-graph {
-                height: 200px; /* Slightly smaller on mobile */
+                height: 200px;
             }
         }
     </style>
@@ -289,19 +371,24 @@
         <!-- Header Section -->
         <div class="header">
             <h1>🌿 Smart Irrigation Dashboard</h1>
-            <div class="user-profile">
-                <div class="user-info" onclick="toggleDropdown(event)">
-                    <img src="/static/images/user-avatar.png" alt="User Avatar" class="user-avatar">
-                    <span class="username">{{ username }}</span>
-                    <!-- Dropdown Content -->
-                    <div id="dropdown" class="dropdown-content">
-                        <form action="/logout" method="POST">
-                            <button type="submit" class="logout-btn">Logout</button>
-                        </form>
+            <div class="header-actions">
+                <div class="action-buttons">
+                    <a href="/history" class="btn btn-secondary">📈 View History</a>
+                    <a href="https://plant-disease-detection-ml98.onrender.com" class="btn btn-success">🌱 Plant Health Scan</a>
+                </div>
+                <div class="user-profile">
+                    <div class="user-info" onclick="toggleDropdown(event)">
+                        <img src="/static/images/user-avatar.png" alt="User Avatar" class="user-avatar">
+                        <span class="username">{{ username }}</span>
+                        <!-- Dropdown Content -->
+                        <div id="dropdown" class="dropdown-content">
+                            <form action="/logout" method="POST">
+                                <button type="submit" class="dropdown-item logout-btn">🚪 Logout</button>
+                            </form>
+                        </div>
                     </div>
                 </div>
             </div>
-            <a href="/history" class="btn">📈 View History</a>
         </div>
 
         <!-- Dashboard Section -->
@@ -334,14 +421,13 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="/static/js/gauges.js"></script>
     <script src="/static/js/control.js"></script>
-      <script src="/static/js/line.js"></script>
+    <script src="/static/js/line.js"></script>
     <script>
         // Toggle the dropdown visibility
         function toggleDropdown(event) {
             event.stopPropagation();
             const dropdown = document.getElementById("dropdown");
             dropdown.classList.toggle("show");
-            console.log("Dropdown toggled:", dropdown.classList.contains("show"));
         }
 
         // Close the dropdown if the user clicks outside of it
@@ -350,11 +436,9 @@
                 const dropdown = document.getElementById("dropdown");
                 if (dropdown.classList.contains('show')) {
                     dropdown.classList.remove('show');
-                    console.log("Dropdown closed due to outside click");
                 }
             }
         }
-
     </script>
 </body>
 </html>
