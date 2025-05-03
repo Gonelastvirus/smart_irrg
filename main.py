@@ -1,4 +1,4 @@
-from fastapi import FastAPI, Request, Depends, HTTPException, Form, Cookie,Body
+from fastapi import FastAPI, Request, Depends, HTTPException, Form, Cookie,Body,Query
 from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
 from fastapi.staticfiles import StaticFiles
@@ -10,6 +10,7 @@ from pydantic import BaseModel
 from typing import Optional
 from passlib.context import CryptContext
 import jwt
+import requests  # Add this at the top
 
 # --------- Pydantic Schemas ---------
 class UserCreate(BaseModel):
@@ -17,16 +18,17 @@ class UserCreate(BaseModel):
     email: str
     password: str
     mac_address: str
-
+    phone:str
     @classmethod
     def as_form(
         cls,
         username: str = Form(...),
         email: str = Form(...),
         password: str = Form(...),
+        phone: str = Form(...),
         mac_address: str = Form(...),
     ) -> "UserCreate":
-        return cls(username=username, email=email, password=password, mac_address=mac_address)
+        return cls(username=username, email=email, password=password, mac_address=mac_address,phone=phone)
 
 class OverrideModel(BaseModel):
     override: bool
@@ -107,6 +109,7 @@ def signup(
         username=user.username,
         email=user.email,
         password_hash=hashed_password,
+        phone=user.phone,
         mac_address=user.mac_address
     )
     db.add(db_user)
@@ -176,12 +179,30 @@ def get_latest_data(db: Session = Depends(get_db)):
     if latest:
         return {"moisture": latest.moisture, "pump_status": latest.pump_status}
     return {"moisture": 0, "pump_status": False}
+# --------------------------------------send sms------------
+def send_sms(message: str, phone_number: str):
+    try:
+        payload = {
+            "to": phone_number,
+            "from": "Demo",
+            "token":"v2_3NbaPLXQ9Arh2kMSlQj89MExZ7i.0yRc",
+             "text": message
+        }
 
+        response = requests.post( "https://smsrelay-sparrow.onrender.com/relay_sms", data=payload)
+        if response.status_code == 200:
+            print("Message sent successfully!")
+        else:
+            print(f"Failed to send message. Status code: {response.status_code}")
+            print(response.text)
+    except Exception as e:
+        print(f"Error sending message: {e}")
 # --------- API: Receive Sensor Data ---------
 @app.post("/api/sensor")
 async def sensor_data(
     moisture: float,
     mac_address: str,
+    trigger_sms: bool = Query(False),
     db: Session = Depends(get_db)
 ):
     # 1. Match MAC to User
@@ -198,6 +219,17 @@ async def sensor_data(
 
     # 3. Decide whether to pump or not
     pump_on = moisture < 30 and not control.override
+    
+     # 5. Send SMS only if moisture goes below the threshold and SMS hasn't been sent yet
+    if moisture < 30 and not control.override and not  trigger_sms:
+        send_sms(f"Warning: Moisture level is low at {moisture}%.", user.phone)
+        trigger_sms= True  # Set the flag that SMS has been sent
+
+    # 6. Reset SMS flag if moisture goes above the threshold
+    if moisture >= 30 and  trigger_sms:
+    	send_sms(f"Good: Moisture level is Good at {moisture}%.", user.phone)
+	trigger_sms= False  # Reset the notified flag when moisture is back to safe range
+    db.commit()
 
     # 4. Save sensor reading
     new_data = SensorData(

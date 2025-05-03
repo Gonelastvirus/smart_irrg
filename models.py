@@ -30,6 +30,7 @@ class User(Base):
     username = Column(String, unique=True, index=True)
     password_hash = Column(String)
     email = Column(String, unique=True)
+    phone = Column(String,unique=True)
     mac_address = Column(String, unique=True)  # Store MAC address
     is_active = Column(Boolean, default=True)
 
