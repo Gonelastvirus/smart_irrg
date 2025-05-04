@@ -185,7 +185,7 @@ def send_sms(message: str, phone_number: str):
         payload = {
             "to": phone_number,
             "from": "Demo",
-            "token":"v2_3NbaPLXQ9Arh2kMSlQj89MExZ7i.0yRc",
+            "token":"v2_vGYKISTQcB7D4BEurMsmztwVe4D.J1V6",
              "text": message
         }
 
