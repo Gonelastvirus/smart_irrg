@@ -184,8 +184,7 @@ def send_sms(message: str, phone_number: str):
     try:
         payload = {
             "to": phone_number,
-            "from": "Demo",
-            "token":"v2_3NbaPLXQ9Arh2kMSlQj89MExZ7i.0yRc",
+            "auth_token":"04f3d3a727002cd26de70377f7c0c3e3a5ed25046ea6e98e922d533444f8fa9c",
              "text": message
         }
 
@@ -216,19 +215,20 @@ async def sensor_data(
         control = Control(override=False)
         db.add(control)
         db.commit()
+        db.refresh(control)
 
     # 3. Decide whether to pump or not
     pump_on = moisture < 30 and not control.override
     
      # 5. Send SMS only if moisture goes below the threshold and SMS hasn't been sent yet
-    if moisture < 30 and not control.override and not  trigger_sms:
+    if moisture < 30 and not control.override and not user.sms_sent:
         send_sms(f"Warning: Moisture level is low at {moisture}%.", user.phone)
-        trigger_sms= True  # Set the flag that SMS has been sent
+        user.sms_sent = True  # Set the flag that SMS has been sent
 
     # 6. Reset SMS flag if moisture goes above the threshold
     if moisture >= 30 and  trigger_sms:
         send_sms(f"Good: Moisture level is Good at {moisture}%.", user.phone)
-        trigger_sms= False  # Set the flag that SMS has been sent
+        user.sms_sent = False  # Set the flag that SMS has been sent
     db.commit()
 
     # 4. Save sensor reading

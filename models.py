@@ -33,4 +33,5 @@ class User(Base):
     phone = Column(String,unique=True)
     mac_address = Column(String, unique=True)  # Store MAC address
     is_active = Column(Boolean, default=True)
+    sms_sent = Column(Boolean, default=False)
 
