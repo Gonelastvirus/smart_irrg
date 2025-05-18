@@ -222,6 +222,7 @@ async def sensor_data(
     
      # 5. Send SMS only if moisture goes below the threshold and SMS hasn't been sent yet
     if moisture < 30 and not control.override and not user.sms_sent:
+        print("messsgae trigger")
         if send_sms(f"Warning: Moisture level is low at {moisture}%.", user.phone):
             user.sms_sent = True
 
