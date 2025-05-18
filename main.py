@@ -227,7 +227,7 @@ async def sensor_data(
         user.sms_sent = True  # Set the flag that SMS has been sent
 
     # 6. Reset SMS flag if moisture goes above the threshold
-    if moisture >= 30 and  trigger_sms:
+    elif moisture >= 30 and user.sms_sent:
         print("message function trigger")
         send_sms(f"Good: Moisture level is Good at {moisture}%.", user.phone)
         user.sms_sent = False  # Set the flag that SMS has been sent
