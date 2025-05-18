@@ -188,7 +188,7 @@ def send_sms(message: str, phone_number: str):
              "text": message
         }
 
-        response = requests.post( "https://smsrelay-sparrow.onrender.com/relay_sms", data=payload)
+        response = requests.post( "https://sms.aakashsms.com/sms/v3/send", data=payload)
         if response.status_code == 200:
             print("Message sent successfully!")
         else:
